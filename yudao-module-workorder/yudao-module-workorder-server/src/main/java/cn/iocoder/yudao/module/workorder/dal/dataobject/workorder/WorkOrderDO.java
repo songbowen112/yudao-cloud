@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.report.dal.dataobject.workorder;
+package cn.iocoder.yudao.module.workorder.dal.dataobject.workorder;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -67,3 +67,8 @@ public class WorkOrderDO extends BaseDO {
 
 
 }
+
+
+
+
+

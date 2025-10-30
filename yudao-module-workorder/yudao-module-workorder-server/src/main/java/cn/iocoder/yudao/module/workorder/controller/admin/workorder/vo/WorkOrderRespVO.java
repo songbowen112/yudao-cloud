@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.report.controller.admin.workorder.vo;
+package cn.iocoder.yudao.module.workorder.controller.admin.workorder.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -54,3 +54,5 @@ public class WorkOrderRespVO {
     private LocalDateTime createTime;
 
 }
+
+

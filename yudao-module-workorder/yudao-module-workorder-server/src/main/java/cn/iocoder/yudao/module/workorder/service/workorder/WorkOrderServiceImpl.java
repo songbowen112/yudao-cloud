@@ -1,24 +1,19 @@
-package cn.iocoder.yudao.module.report.service.workorder;
+package cn.iocoder.yudao.module.workorder.service.workorder;
 
-import cn.hutool.core.collection.CollUtil;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import cn.iocoder.yudao.module.report.controller.admin.workorder.vo.*;
-import cn.iocoder.yudao.module.report.dal.dataobject.workorder.WorkOrderDO;
+import cn.iocoder.yudao.module.workorder.controller.admin.workorder.vo.*;
+import cn.iocoder.yudao.module.workorder.dal.dataobject.workorder.WorkOrderDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 
-import cn.iocoder.yudao.module.report.dal.mysql.workorder.WorkOrderMapper;
+import cn.iocoder.yudao.module.workorder.dal.mysql.workorder.WorkOrderMapper;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
-import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.diffList;
-import static cn.iocoder.yudao.module.report.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.workorder.enums.ErrorCodeConstants.*;
 
 /**
  * 工单信息 Service 实现类
@@ -60,11 +55,10 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     }
 
     @Override
-        public void deleteWorkOrderListByIds(List<Long> ids) {
+    public void deleteWorkOrderListByIds(List<Long> ids) {
         // 删除
         workOrderMapper.deleteByIds(ids);
-        }
-
+    }
 
     private void validateWorkOrderExists(Long id) {
         if (workOrderMapper.selectById(id) == null) {
@@ -83,3 +77,8 @@ public class WorkOrderServiceImpl implements WorkOrderService {
     }
 
 }
+
+
+
+
+

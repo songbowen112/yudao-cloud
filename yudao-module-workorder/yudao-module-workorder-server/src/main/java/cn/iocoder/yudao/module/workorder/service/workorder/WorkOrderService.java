@@ -1,9 +1,9 @@
-package cn.iocoder.yudao.module.report.service.workorder;
+package cn.iocoder.yudao.module.workorder.service.workorder;
 
 import java.util.*;
 import javax.validation.*;
-import cn.iocoder.yudao.module.report.controller.admin.workorder.vo.*;
-import cn.iocoder.yudao.module.report.dal.dataobject.workorder.WorkOrderDO;
+import cn.iocoder.yudao.module.workorder.controller.admin.workorder.vo.*;
+import cn.iocoder.yudao.module.workorder.dal.dataobject.workorder.WorkOrderDO;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 
@@ -60,3 +60,8 @@ public interface WorkOrderService {
     PageResult<WorkOrderDO> getWorkOrderPage(WorkOrderPageReqVO pageReqVO);
 
 }
+
+
+
+
+
