@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.workorder.enums.ErrorCodeConstants.*;
@@ -49,6 +50,11 @@ public class WorkorderCompanyServiceImpl implements WorkorderCompanyService {
     @Override
     public PageResult<WorkorderCompanyDO> getPage(WorkorderCompanyPageReqVO pageReqVO) {
         return workorderCompanyMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<WorkorderCompanyDO> getListByStatus(Integer status) {
+        return workorderCompanyMapper.selectListByStatus(status);
     }
 
     private void validateExists(Long id) {

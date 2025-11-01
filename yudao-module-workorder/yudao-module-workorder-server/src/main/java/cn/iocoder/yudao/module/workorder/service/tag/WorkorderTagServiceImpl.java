@@ -62,6 +62,11 @@ public class WorkorderTagServiceImpl implements WorkorderTagService {
         return workorderTagMapper.selectListByParentTagId(parentTagId, status);
     }
 
+    @Override
+    public List<WorkorderTagDO> getListByParentTagIds(List<Long> parentTagIds, Integer status) {
+        return workorderTagMapper.selectListByParentTagIds(parentTagIds, status);
+    }
+
     private void validateExists(Long id) {
         if (workorderTagMapper.selectById(id) == null) {
             throw exception(WORKORDER_TAG_NOT_EXISTS);

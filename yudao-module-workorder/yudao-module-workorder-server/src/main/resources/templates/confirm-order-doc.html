@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>确认单 - DOC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Microsoft YaHei", "Noto Sans CJK", "Source Han Sans CN", "SimSun", "SimHei", Arial, sans-serif;
+            padding: 30px;
+            background: #fff;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 50px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #52c41a;
+            padding-bottom: 25px;
+            margin-bottom: 35px;
+        }
+        .header h1 {
+            color: #52c41a;
+            font-size: 36px;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+        .header .subtitle {
+            color: #888;
+            font-size: 16px;
+        }
+        .content-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        .section-title {
+            color: #52c41a;
+            font-size: 20px;
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #52c41a;
+            font-weight: 600;
+        }
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+        .detail-table tr {
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .detail-table td {
+            padding: 15px 20px;
+            vertical-align: top;
+        }
+        .detail-table .label {
+            font-weight: bold;
+            color: #595959;
+            width: 150px;
+            background: #f0f0f0;
+        }
+        .detail-table .value {
+            color: #262626;
+            background: #fff;
+        }
+        .tags-container {
+            background: #f6ffed;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #b7eb8f;
+            margin-top: 15px;
+        }
+        .tags-title {
+            font-weight: bold;
+            color: #52c41a;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        .tags-list {
+            line-height: 2.5;
+        }
+        .tag-item {
+            display: inline-block;
+            background: #52c41a;
+            color: #fff;
+            padding: 6px 14px;
+            margin: 4px 8px 4px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .remark-box {
+            background: #fffbe6;
+            border-left: 5px solid #ffc53d;
+            padding: 18px;
+            margin-top: 25px;
+            border-radius: 4px;
+        }
+        .remark-title {
+            font-weight: bold;
+            color: #fa8c16;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .remark-content {
+            color: #595959;
+            line-height: 1.8;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 2px solid #e8e8e8;
+            text-align: center;
+            color: #8c8c8c;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>确认单</h1>
+            <div class="subtitle">CONFIRMATION DOCUMENT</div>
+        </div>
+
+        <div class="content-section">
+            <div class="section-title">工单信息</div>
+            <table class="detail-table">
+                <tr>
+                    <td class="label">工单名称</td>
+                    <td class="value">{workOrderName}</td>
+                </tr>
+                <tr>
+                    <td class="label">收款企业</td>
+                    <td class="value">{receiptCompanyName}</td>
+                </tr>
+                <tr>
+                    <td class="label">付款企业</td>
+                    <td class="value">{paymentCompanyName}</td>
+                </tr>
+                <tr>
+                    <td class="label">生成日期</td>
+                    <td class="value">{currentDate}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="content-section">
+            <div class="section-title">标签信息</div>
+            <div class="tags-container">
+                <div class="tags-title">标签列表：</div>
+                <div class="tags-list">
+                    {tagList}
+                </div>
+            </div>
+        </div>
+
+        {remarkSection}
+
+        <div class="footer">
+            <div>生成时间：{currentDateTime}</div>
+            <div style="margin-top: 8px;">© 确认单系统 | 本单据由系统自动生成</div>
+        </div>
+    </div>
+</body>
+</html>

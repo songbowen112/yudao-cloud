@@ -47,6 +47,22 @@ public interface WorkorderTagMapper extends BaseMapperX<WorkorderTagDO> {
                 .eqIfPresent(WorkorderTagDO::getStatus, status)
                 .orderByAsc(WorkorderTagDO::getId));
     }
+
+    /**
+     * 根据多个一级标签ID查询所有二级标签
+     *
+     * @param parentTagIds 父标签ID列表
+     * @param status 状态，可选。如果为空则查询所有状态的标签
+     */
+    default List<WorkorderTagDO> selectListByParentTagIds(List<Long> parentTagIds, Integer status) {
+        if (parentTagIds == null || parentTagIds.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        return selectList(new LambdaQueryWrapperX<WorkorderTagDO>()
+                .in(WorkorderTagDO::getParentTagId, parentTagIds)
+                .eqIfPresent(WorkorderTagDO::getStatus, status)
+                .orderByAsc(WorkorderTagDO::getId));
+    }
 }
 
 

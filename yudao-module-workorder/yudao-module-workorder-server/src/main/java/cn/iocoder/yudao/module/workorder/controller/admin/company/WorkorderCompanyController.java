@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -66,6 +67,15 @@ public class WorkorderCompanyController {
     public CommonResult<PageResult<WorkorderCompanyRespVO>> page(WorkorderCompanyPageReqVO pageReqVO) {
         PageResult<WorkorderCompanyDO> pageResult = workorderCompanyService.getPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, WorkorderCompanyRespVO.class));
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "根据状态查询所有企业列表")
+    @Parameter(name = "status", description = "状态，可选。不传则查询所有状态的企业，传值则按状态过滤（0=启用，1=禁用）", required = false)
+    @PreAuthorize("@ss.hasPermission('workorder:company:query')")
+    public CommonResult<List<WorkorderCompanyRespVO>> list(@RequestParam(value = "status", required = false) Integer status) {
+        List<WorkorderCompanyDO> list = workorderCompanyService.getListByStatus(status);
+        return success(BeanUtils.toBean(list, WorkorderCompanyRespVO.class));
     }
 }
 

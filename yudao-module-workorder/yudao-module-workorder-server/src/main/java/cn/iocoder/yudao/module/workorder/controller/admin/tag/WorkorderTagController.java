@@ -89,6 +89,18 @@ public class WorkorderTagController {
         List<WorkorderTagDO> list = workorderTagService.getListByParentTagId(parentTagId, status);
         return success(BeanUtils.toBean(list, WorkorderTagRespVO.class));
     }
+
+    @GetMapping("/list-by-parents")
+    @Operation(summary = "根据一级标签列表和状态查询所有二级标签")
+    @Parameter(name = "parentTagIds", description = "一级标签编号列表", required = true)
+    @Parameter(name = "status", description = "状态，可选。不传则查询所有状态的标签，传值则按状态过滤（0=启用，1=禁用）", required = false)
+    @PreAuthorize("@ss.hasPermission('workorder:tag:query')")
+    public CommonResult<List<WorkorderTagRespVO>> getTagListByParents(
+            @RequestParam("parentTagIds") List<Long> parentTagIds,
+            @RequestParam(value = "status", required = false) Integer status) {
+        List<WorkorderTagDO> list = workorderTagService.getListByParentTagIds(parentTagIds, status);
+        return success(BeanUtils.toBean(list, WorkorderTagRespVO.class));
+    }
 }
 
 

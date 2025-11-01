@@ -6,6 +6,7 @@ import cn.iocoder.yudao.module.workorder.controller.admin.confirmorder.vo.Confir
 import cn.iocoder.yudao.module.workorder.dal.dataobject.confirmorder.ConfirmOrderDO;
 
 import javax.validation.Valid;
+import java.util.List;
 
 public interface ConfirmOrderService {
 
@@ -18,6 +19,13 @@ public interface ConfirmOrderService {
     ConfirmOrderDO get(Long id);
 
     PageResult<ConfirmOrderDO> getPage(ConfirmOrderPageReqVO pageReqVO);
+
+    /**
+     * 查询所有初始化状态的确认单（status = 1）
+     *
+     * @return 确认单列表
+     */
+    List<ConfirmOrderDO> getListByInitStatus();
 }
 
 

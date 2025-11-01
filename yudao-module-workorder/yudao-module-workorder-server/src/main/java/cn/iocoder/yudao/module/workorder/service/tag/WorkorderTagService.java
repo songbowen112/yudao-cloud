@@ -29,6 +29,14 @@ public interface WorkorderTagService {
      * @param status 状态，可选。如果为空则查询所有状态的标签
      */
     List<WorkorderTagDO> getListByParentTagId(Long parentTagId, Integer status);
+
+    /**
+     * 根据多个一级标签ID查询所有二级标签
+     *
+     * @param parentTagIds 父标签ID列表
+     * @param status 状态，可选。如果为空则查询所有状态的标签
+     */
+    List<WorkorderTagDO> getListByParentTagIds(List<Long> parentTagIds, Integer status);
 }
 
 

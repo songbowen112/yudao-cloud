@@ -7,6 +7,8 @@ import cn.iocoder.yudao.module.workorder.controller.admin.company.vo.WorkorderCo
 import cn.iocoder.yudao.module.workorder.dal.dataobject.company.WorkorderCompanyDO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 @Mapper
 public interface WorkorderCompanyMapper extends BaseMapperX<WorkorderCompanyDO> {
     default PageResult<WorkorderCompanyDO> selectPage(WorkorderCompanyPageReqVO reqVO) {
@@ -15,6 +17,17 @@ public interface WorkorderCompanyMapper extends BaseMapperX<WorkorderCompanyDO> 
                 .eqIfPresent(WorkorderCompanyDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(WorkorderCompanyDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(WorkorderCompanyDO::getId));
+    }
+
+    /**
+     * 根据状态查询所有企业列表
+     *
+     * @param status 状态，可选。如果为空则查询所有状态的企业
+     */
+    default List<WorkorderCompanyDO> selectListByStatus(Integer status) {
+        return selectList(new LambdaQueryWrapperX<WorkorderCompanyDO>()
+                .eqIfPresent(WorkorderCompanyDO::getStatus, status)
+                .orderByAsc(WorkorderCompanyDO::getId));
     }
 }
 
