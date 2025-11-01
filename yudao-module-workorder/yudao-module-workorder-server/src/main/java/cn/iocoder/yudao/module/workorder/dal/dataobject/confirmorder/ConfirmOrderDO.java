@@ -2,7 +2,7 @@ package cn.iocoder.yudao.module.workorder.dal.dataobject.confirmorder;
 
 import lombok.*;
 import com.baomidou.mybatisplus.annotation.*;
-import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.framework.tenant.core.db.TenantBaseDO;
 
 /**
  * 确认单信息 DO
@@ -15,7 +15,7 @@ import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConfirmOrderDO extends BaseDO {
+public class ConfirmOrderDO extends TenantBaseDO {
 
     /** 工单ID */
     @TableId

@@ -2,7 +2,7 @@ package cn.iocoder.yudao.module.workorder.dal.dataobject.tag;
 
 import lombok.*;
 import com.baomidou.mybatisplus.annotation.*;
-import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.framework.tenant.core.db.TenantBaseDO;
 
 @TableName("workorder_tag")
 @KeySequence("workorder_tag_seq")
@@ -12,7 +12,7 @@ import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkorderTagDO extends BaseDO {
+public class WorkorderTagDO extends TenantBaseDO {
     @TableId
     private Long id;
     private String tagName;

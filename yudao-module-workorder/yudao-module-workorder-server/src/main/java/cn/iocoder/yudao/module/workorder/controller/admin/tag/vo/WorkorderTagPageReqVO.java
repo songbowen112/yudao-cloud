@@ -12,6 +12,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 public class WorkorderTagPageReqVO extends PageParam {
     private String tagName;
     private Long parentTagId;
+    private Long tagId;
     private Integer status;
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;

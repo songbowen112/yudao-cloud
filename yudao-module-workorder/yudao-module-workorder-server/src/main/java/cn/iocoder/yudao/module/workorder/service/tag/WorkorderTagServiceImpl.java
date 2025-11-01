@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.workorder.enums.ErrorCodeConstants.*;
@@ -49,6 +50,16 @@ public class WorkorderTagServiceImpl implements WorkorderTagService {
     @Override
     public PageResult<WorkorderTagDO> getPage(WorkorderTagPageReqVO pageReqVO) {
         return workorderTagMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<WorkorderTagDO> getListByParentTagIdIsNull(Integer status) {
+        return workorderTagMapper.selectListByParentTagIdIsNull(status);
+    }
+
+    @Override
+    public List<WorkorderTagDO> getListByParentTagId(Long parentTagId, Integer status) {
+        return workorderTagMapper.selectListByParentTagId(parentTagId, status);
     }
 
     private void validateExists(Long id) {

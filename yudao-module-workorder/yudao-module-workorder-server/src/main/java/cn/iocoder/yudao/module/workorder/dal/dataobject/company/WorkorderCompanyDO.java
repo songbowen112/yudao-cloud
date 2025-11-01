@@ -1,8 +1,9 @@
 package cn.iocoder.yudao.module.workorder.dal.dataobject.company;
 
+import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import lombok.*;
 import com.baomidou.mybatisplus.annotation.*;
-import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.framework.tenant.core.db.TenantBaseDO;
 
 @TableName("workorder_company")
 @KeySequence("workorder_company_seq")

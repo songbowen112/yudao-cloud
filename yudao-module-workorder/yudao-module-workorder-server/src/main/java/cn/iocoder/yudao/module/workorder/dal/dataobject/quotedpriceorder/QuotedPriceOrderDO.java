@@ -2,7 +2,7 @@ package cn.iocoder.yudao.module.workorder.dal.dataobject.quotedpriceorder;
 
 import lombok.*;
 import com.baomidou.mybatisplus.annotation.*;
-import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
+import cn.iocoder.yudao.framework.tenant.core.db.TenantBaseDO;
 import java.math.BigDecimal;
 
 /**
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuotedPriceOrderDO extends BaseDO {
+public class QuotedPriceOrderDO extends TenantBaseDO {
 
     @TableId
     private Long id;

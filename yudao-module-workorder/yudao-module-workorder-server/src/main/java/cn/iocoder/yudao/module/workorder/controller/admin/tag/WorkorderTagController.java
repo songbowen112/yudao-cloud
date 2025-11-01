@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
@@ -66,6 +67,27 @@ public class WorkorderTagController {
     public CommonResult<PageResult<WorkorderTagRespVO>> page(WorkorderTagPageReqVO pageReqVO) {
         PageResult<WorkorderTagDO> pageResult = workorderTagService.getPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, WorkorderTagRespVO.class));
+    }
+
+    @GetMapping("/list-parent")
+    @Operation(summary = "获得所有一级标签")
+    @Parameter(name = "status", description = "状态，可选。不传则查询所有状态的标签，传值则按状态过滤（0=启用，1=禁用）", required = false)
+    @PreAuthorize("@ss.hasPermission('workorder:tag:query')")
+    public CommonResult<List<WorkorderTagRespVO>> getParentTagList(@RequestParam(value = "status", required = false) Integer status) {
+        List<WorkorderTagDO> list = workorderTagService.getListByParentTagIdIsNull(status);
+        return success(BeanUtils.toBean(list, WorkorderTagRespVO.class));
+    }
+
+    @GetMapping("/list-by-parent")
+    @Operation(summary = "根据一级标签获得所有二级标签")
+    @Parameter(name = "parentTagId", description = "一级标签编号", required = true)
+    @Parameter(name = "status", description = "状态，可选。不传则查询所有状态的标签，传值则按状态过滤（0=启用，1=禁用）", required = false)
+    @PreAuthorize("@ss.hasPermission('workorder:tag:query')")
+    public CommonResult<List<WorkorderTagRespVO>> getTagListByParent(
+            @RequestParam("parentTagId") Long parentTagId,
+            @RequestParam(value = "status", required = false) Integer status) {
+        List<WorkorderTagDO> list = workorderTagService.getListByParentTagId(parentTagId, status);
+        return success(BeanUtils.toBean(list, WorkorderTagRespVO.class));
     }
 }
 
