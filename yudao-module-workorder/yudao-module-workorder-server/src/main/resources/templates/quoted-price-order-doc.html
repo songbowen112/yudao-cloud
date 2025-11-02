@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>确认单 - DOC</title>
+    <title>报价单 - DOC</title>
     <style>
         * {
             margin: 0;
@@ -73,30 +73,43 @@
             color: #262626;
             background: #fff;
         }
-        .tags-container {
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
             background: #f6ffed;
-            padding: 20px;
-            border-radius: 6px;
-            border: 1px solid #b7eb8f;
-            margin-top: 15px;
+            border: 2px solid #52c41a;
         }
-        .tags-title {
+        .price-table tr {
+            border-bottom: 1px solid #d9f7be;
+        }
+        .price-table tr:last-child {
+            border-bottom: none;
+            border-top: 2px solid #52c41a;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .price-table td {
+            padding: 15px 20px;
+        }
+        .price-table .label {
+            font-weight: bold;
+            color: #389e0d;
+            width: 200px;
+        }
+        .price-table .value {
+            text-align: right;
+            font-size: 18px;
             font-weight: bold;
             color: #52c41a;
-            margin-bottom: 12px;
-            font-size: 16px;
         }
-        .tags-list {
-            line-height: 2.5;
-        }
-        .tag-item {
-            display: inline-block;
-            background: #52c41a;
-            color: #fff;
-            padding: 6px 14px;
-            margin: 4px 8px 4px 0;
-            border-radius: 4px;
-            font-size: 14px;
+        .footer {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 2px solid #e8e8e8;
+            text-align: center;
+            color: #8c8c8c;
+            font-size: 13px;
         }
         .remark-box {
             background: #fffbe6;
@@ -115,25 +128,17 @@
             color: #595959;
             line-height: 1.8;
         }
-        .footer {
-            margin-top: 50px;
-            padding-top: 25px;
-            border-top: 2px solid #e8e8e8;
-            text-align: center;
-            color: #8c8c8c;
-            font-size: 13px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>确认单</h1>
-            <div class="subtitle">CONFIRMATION DOCUMENT</div>
+            <h1>报价单</h1>
+            <div class="subtitle">QUOTATION DOCUMENT</div>
         </div>
 
         <div class="content-section">
-            <div class="section-title">工单信息</div>
+            <div class="section-title">基本信息</div>
             <table class="detail-table">
                 <tr>
                     <td class="label">工单名称</td>
@@ -155,11 +160,27 @@
         </div>
 
         <div class="content-section">
-            <div class="section-title">标签信息</div>
-            <table class="detail-table">
+            <div class="section-title">报价明细</div>
+            <table class="price-table">
                 <tr>
-                    <td class="label">标签列表</td>
-                    <td class="value" style="white-space: pre-line;">{tagText}</td>
+                    <td class="label">单价</td>
+                    <td class="value">¥ {price}</td>
+                </tr>
+                <tr>
+                    <td class="label">数量</td>
+                    <td class="value">{quantity}</td>
+                </tr>
+                <tr>
+                    <td class="label">总价</td>
+                    <td class="value">¥ {totalPrice}</td>
+                </tr>
+                <tr>
+                    <td class="label">预付款（30%）</td>
+                    <td class="value">¥ {advancePayment}</td>
+                </tr>
+                <tr>
+                    <td class="label">尾款（70%）</td>
+                    <td class="value">¥ {finalPayment}</td>
                 </tr>
             </table>
         </div>
@@ -168,8 +189,9 @@
 
         <div class="footer">
             <div>生成时间：{currentDateTime}</div>
-            <div style="margin-top: 8px;">© 确认单系统 | 本单据由系统自动生成</div>
+            <div style="margin-top: 8px;">© 报价单系统 | 本单据由系统自动生成</div>
         </div>
     </div>
 </body>
 </html>
+

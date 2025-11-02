@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>确认单 - PDF</title>
+    <title>报价单 - PDF</title>
     <style>
         * {
             margin: 0;
@@ -26,12 +26,12 @@
         }
         .header {
             text-align: center;
-            border-bottom: 3px solid #1890ff;
+            border-bottom: 3px solid #52c41a;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
         .header h1 {
-            color: #1890ff;
+            color: #52c41a;
             font-size: 32px;
             margin-bottom: 10px;
         }
@@ -43,11 +43,11 @@
             margin-bottom: 25px;
         }
         .info-section h2 {
-            color: #1890ff;
+            color: #52c41a;
             font-size: 18px;
             margin-bottom: 15px;
             padding-left: 10px;
-            border-left: 4px solid #1890ff;
+            border-left: 4px solid #52c41a;
         }
         .info-row {
             display: flex;
@@ -55,7 +55,7 @@
             padding: 12px;
             background: #fafafa;
             border-radius: 4px;
-            border-left: 3px solid #1890ff;
+            border-left: 3px solid #52c41a;
         }
         .info-label {
             font-weight: bold;
@@ -67,55 +67,36 @@
             color: #333;
             flex: 1;
         }
-        .tags-section {
-            background: #f0f7ff;
-            padding: 15px;
-            border-radius: 4px;
-            border: 1px solid #e6f4ff;
-        }
-        .tag-category {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #fff;
-            border-radius: 4px;
-            border-left: 3px solid #1890ff;
-        }
-        .tag-category:last-child {
-            margin-bottom: 0;
-        }
-        .tag-category-title {
-            font-weight: bold;
-            font-size: 16px;
-            color: #1890ff;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #e6f4ff;
-        }
-        .tag-category-content {
-            margin-top: 8px;
-            line-height: 1.8;
-        }
-        .tag-item {
-            display: inline-block;
-            background: #1890ff;
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            margin: 4px 8px 4px 0;
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-        .tag-item-empty {
-            color: #999;
-            font-size: 14px;
-            font-style: italic;
-        }
-        .no-tags {
-            color: #999;
-            font-size: 14px;
-            text-align: center;
+        .price-section {
+            background: #f6ffed;
             padding: 20px;
+            border-radius: 4px;
+            border: 2px solid #52c41a;
+            margin-top: 20px;
+        }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #d9f7be;
+        }
+        .price-row:last-child {
+            border-bottom: none;
+        }
+        .price-label {
+            font-weight: bold;
+            color: #389e0d;
+        }
+        .price-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #52c41a;
+        }
+        .total-price-row {
+            font-size: 20px;
+            padding-top: 15px;
+            margin-top: 10px;
+            border-top: 2px solid #52c41a;
         }
         .footer {
             margin-top: 40px;
@@ -137,8 +118,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>确认单</h1>
-            <div class="subtitle">CONFIRMATION ORDER</div>
+            <h1>报价单</h1>
+            <div class="subtitle">QUOTATION ORDER</div>
         </div>
 
         <div class="info-section">
@@ -158,10 +139,27 @@
         </div>
 
         <div class="info-section">
-            <h2>标签信息</h2>
-            <div class="tags-section">
-                <div class="tags-list">
-                    {tagList}
+            <h2>报价信息</h2>
+            <div class="price-section">
+                <div class="price-row">
+                    <span class="price-label">单价：</span>
+                    <span class="price-value">¥ {price}</span>
+                </div>
+                <div class="price-row">
+                    <span class="price-label">数量：</span>
+                    <span class="price-value">{quantity}</span>
+                </div>
+                <div class="price-row total-price-row">
+                    <span class="price-label">总价：</span>
+                    <span class="price-value">¥ {totalPrice}</span>
+                </div>
+                <div class="price-row">
+                    <span class="price-label">预付款（30%）：</span>
+                    <span class="price-value">¥ {advancePayment}</span>
+                </div>
+                <div class="price-row">
+                    <span class="price-label">尾款（70%）：</span>
+                    <span class="price-value">¥ {finalPayment}</span>
                 </div>
             </div>
         </div>
@@ -170,8 +168,9 @@
 
         <div class="footer">
             <div>生成时间：{currentDateTime}</div>
-            <div style="margin-top: 5px;">© 确认单系统</div>
+            <div style="margin-top: 5px;">© 报价单系统</div>
         </div>
     </div>
 </body>
 </html>
+

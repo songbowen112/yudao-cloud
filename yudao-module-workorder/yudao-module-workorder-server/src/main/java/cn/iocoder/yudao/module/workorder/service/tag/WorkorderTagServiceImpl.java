@@ -25,6 +25,8 @@ public class WorkorderTagServiceImpl implements WorkorderTagService {
     @Override
     public Long create(WorkorderTagSaveReqVO createReqVO) {
         WorkorderTagDO entity = BeanUtils.toBean(createReqVO, WorkorderTagDO.class);
+        // 清除creator和updater等字段，让MyBatis-Plus自动填充
+        entity.clean();
         workorderTagMapper.insert(entity);
         return entity.getId();
     }
@@ -33,6 +35,8 @@ public class WorkorderTagServiceImpl implements WorkorderTagService {
     public void update(WorkorderTagSaveReqVO updateReqVO) {
         validateExists(updateReqVO.getId());
         WorkorderTagDO entity = BeanUtils.toBean(updateReqVO, WorkorderTagDO.class);
+        // 清除creator和updater等字段，让MyBatis-Plus自动填充（防止前端传递这些字段）
+        entity.clean();
         workorderTagMapper.updateById(entity);
     }
 

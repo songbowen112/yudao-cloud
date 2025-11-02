@@ -43,6 +43,8 @@ public class ConfirmOrderServiceImpl implements ConfirmOrderService {
     public Long create(ConfirmOrderSaveReqVO createReqVO) {
         // 1. 保存确认单信息
         ConfirmOrderDO entity = BeanUtils.toBean(createReqVO, ConfirmOrderDO.class);
+        // 清除creator和updater等字段，让MyBatis-Plus自动填充
+        entity.clean();
         
         // 验证必填字段（用于调试）
         log.info("创建确认单 - 工单名称: '{}', 收款企业: '{}', 付款企业: '{}', 文件类型: {}", 
@@ -55,9 +57,8 @@ public class ConfirmOrderServiceImpl implements ConfirmOrderService {
 
         // 2. 生成文件（如果文件类型不为空）
         if (entity.getFileType() != null) {
-            List<String> tagNames = getTagNames(entity.getTagIds());
-            log.info("开始生成文件 - 标签数量: {}", tagNames.size());
-            String fileUrl = fileGenerateService.generateFile(entity, tagNames);
+            log.info("开始生成文件 - 标签IDs: {}", entity.getTagIds());
+            String fileUrl = fileGenerateService.generateFile(entity);
             // 更新文件路径
             entity.setFileUrl(fileUrl);
             confirmOrderMapper.updateById(entity);
@@ -78,14 +79,16 @@ public class ConfirmOrderServiceImpl implements ConfirmOrderService {
         
         // 2. 将更新数据复制到现有实体（只更新非空字段）
         BeanUtils.copyProperties(updateReqVO, existingEntity);
+        // 清除creator和updater等字段，让MyBatis-Plus自动填充（防止前端传递这些字段）
+        existingEntity.clean();
         
         // 3. 更新确认单信息
         confirmOrderMapper.updateById(existingEntity);
 
         // 4. 生成文件（如果文件类型不为空）
         if (existingEntity.getFileType() != null) {
-            List<String> tagNames = getTagNames(existingEntity.getTagIds());
-            String fileUrl = fileGenerateService.generateFile(existingEntity, tagNames);
+            log.info("开始生成文件 - 标签IDs: {}", existingEntity.getTagIds());
+            String fileUrl = fileGenerateService.generateFile(existingEntity);
             // 更新文件路径
             existingEntity.setFileUrl(fileUrl);
             confirmOrderMapper.updateById(existingEntity);

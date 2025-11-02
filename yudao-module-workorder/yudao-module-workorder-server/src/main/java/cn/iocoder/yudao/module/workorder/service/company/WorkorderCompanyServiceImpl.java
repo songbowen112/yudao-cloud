@@ -25,6 +25,8 @@ public class WorkorderCompanyServiceImpl implements WorkorderCompanyService {
     @Override
     public Long create(WorkorderCompanySaveReqVO createReqVO) {
         WorkorderCompanyDO entity = BeanUtils.toBean(createReqVO, WorkorderCompanyDO.class);
+        // 清除creator和updater等字段，让MyBatis-Plus自动填充
+        entity.clean();
         workorderCompanyMapper.insert(entity);
         return entity.getId();
     }
@@ -33,6 +35,8 @@ public class WorkorderCompanyServiceImpl implements WorkorderCompanyService {
     public void update(WorkorderCompanySaveReqVO updateReqVO) {
         validateExists(updateReqVO.getId());
         WorkorderCompanyDO entity = BeanUtils.toBean(updateReqVO, WorkorderCompanyDO.class);
+        // 清除creator和updater等字段，让MyBatis-Plus自动填充（防止前端传递这些字段）
+        entity.clean();
         workorderCompanyMapper.updateById(entity);
     }
 

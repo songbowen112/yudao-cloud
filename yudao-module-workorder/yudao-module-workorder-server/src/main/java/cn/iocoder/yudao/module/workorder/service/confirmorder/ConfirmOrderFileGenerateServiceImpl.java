@@ -5,6 +5,8 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.module.infra.api.file.FileApi;
 import cn.iocoder.yudao.module.workorder.dal.dataobject.confirmorder.ConfirmOrderDO;
+import cn.iocoder.yudao.module.workorder.dal.dataobject.tag.WorkorderTagDO;
+import cn.iocoder.yudao.module.workorder.dal.mysql.tag.WorkorderTagMapper;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -23,7 +25,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +38,9 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
     @Resource
     private FileApi fileApi;
 
+    @Resource
+    private WorkorderTagMapper workorderTagMapper;
+
     /**
      * 文件类型：1-PDF 2-DOC 3-XLS
      */
@@ -44,13 +49,13 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
     private static final int FILE_TYPE_XLS = 3;
 
     @Override
-    public String generateFile(ConfirmOrderDO confirmOrder, List<String> tagNames) {
+    public String generateFile(ConfirmOrderDO confirmOrder) {
         if (confirmOrder == null || confirmOrder.getFileType() == null) {
             throw new IllegalArgumentException("确认单信息或文件类型不能为空");
         }
 
         // 1. 准备模板数据
-        TemplateData templateData = buildTemplateData(confirmOrder, tagNames);
+        TemplateData templateData = buildTemplateData(confirmOrder);
         
         // 验证数据是否正确（用于调试）
         log.info("准备生成文件 - 工单ID: {}, 工单名称: '{}', 收款企业: '{}', 付款企业: '{}', 文件类型: {}", 
@@ -137,22 +142,188 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
     /**
      * 构建模板数据
      */
-    private TemplateData buildTemplateData(ConfirmOrderDO confirmOrder, List<String> tagNames) {
+    private TemplateData buildTemplateData(ConfirmOrderDO confirmOrder) {
         TemplateData data = new TemplateData();
         data.workOrderName = StrUtil.nullToEmpty(confirmOrder.getName());
         data.receiptCompanyName = StrUtil.nullToEmpty(confirmOrder.getReceiptCompanyName());
         data.paymentCompanyName = StrUtil.nullToEmpty(confirmOrder.getPaymentCompanyName());
-        data.tagNames = CollUtil.isEmpty(tagNames) ? "" : String.join("、", tagNames);
-        data.tagList = CollUtil.isEmpty(tagNames) ? "" : tagNames.stream().collect(Collectors.joining("\n"));
         data.remark = StrUtil.nullToEmpty(confirmOrder.getRemark());
         data.currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy年MM月dd日"));
         data.currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         
-        // 添加日志以便调试
-        log.info("构建模板数据 - 工单名称: {}, 收款企业: {}, 付款企业: {}, 标签数量: {}", 
-                data.workOrderName, data.receiptCompanyName, data.paymentCompanyName, tagNames.size());
+        // 解析标签并按照一级标签分类
+        List<TagCategory> tagCategories = parseAndCategorizeTags(confirmOrder.getTagIds());
+        data.tagCategories = tagCategories;
+        
+        // 生成标签HTML（用于PDF模板）
+        data.tagList = generateTagListHtml(tagCategories);
+        
+        // 生成标签文本（用于DOC和XLS模板）
+        data.tagText = generateTagText(tagCategories);
+        
+        log.info("构建模板数据 - 工单名称: {}, 收款企业: {}, 付款企业: {}, 标签分类数量: {}", 
+                data.workOrderName, data.receiptCompanyName, data.paymentCompanyName, tagCategories.size());
         
         return data;
+    }
+
+    /**
+     * 解析标签ID并按照一级标签分类
+     */
+    private List<TagCategory> parseAndCategorizeTags(String tagIds) {
+        if (StrUtil.isBlank(tagIds)) {
+            return new ArrayList<>();
+        }
+
+        // 1. 解析标签ID
+        List<Long> tagIdList = Arrays.stream(tagIds.split(","))
+                .filter(StrUtil::isNotBlank)
+                .map(String::trim)
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
+        if (CollUtil.isEmpty(tagIdList)) {
+            return new ArrayList<>();
+        }
+
+        // 2. 查询所有标签
+        List<WorkorderTagDO> allTags = workorderTagMapper.selectBatchIds(tagIdList);
+        if (CollUtil.isEmpty(allTags)) {
+            log.warn("未找到标签信息，tagIds: {}", tagIds);
+            return new ArrayList<>();
+        }
+
+        // 3. 建立标签ID到标签对象的映射
+        Map<Long, WorkorderTagDO> tagMap = allTags.stream()
+                .collect(Collectors.toMap(WorkorderTagDO::getId, tag -> tag));
+
+        // 4. 找到所有一级标签（父标签ID为null或-1）
+        Set<Long> parentTagIds = new HashSet<>();
+        for (WorkorderTagDO tag : allTags) {
+            Long parentTagId = tag.getParentTagId();
+            if (parentTagId == null || parentTagId == -1L) {
+                // 这是一级标签，添加到分类中
+                parentTagIds.add(tag.getId());
+            } else {
+                // 这是二级标签，添加其父标签ID
+                parentTagIds.add(parentTagId);
+            }
+        }
+
+        // 5. 查询一级标签信息
+        List<WorkorderTagDO> parentTags = workorderTagMapper.selectBatchIds(new ArrayList<>(parentTagIds));
+        Map<Long, WorkorderTagDO> parentTagMap = parentTags.stream()
+                .collect(Collectors.toMap(WorkorderTagDO::getId, tag -> tag));
+
+        // 6. 按照一级标签分类组织数据
+        Map<Long, TagCategory> categoryMap = new LinkedHashMap<>();
+        
+        for (WorkorderTagDO tag : allTags) {
+            Long parentTagId = tag.getParentTagId();
+            
+            // 判断是否为一级标签
+            if (parentTagId == null || parentTagId == -1L) {
+                // 一级标签，直接作为分类
+                Long categoryId = tag.getId();
+                TagCategory category = categoryMap.computeIfAbsent(categoryId, k -> {
+                    TagCategory cat = new TagCategory();
+                    cat.parentTagId = categoryId;
+                    cat.parentTagName = tag.getTagName();
+                    cat.childTags = new ArrayList<>();
+                    return cat;
+                });
+                // 一级标签本身也可以作为内容展示（如果需要）
+            } else {
+                // 二级标签，找到其父标签分类
+                TagCategory category = categoryMap.computeIfAbsent(parentTagId, k -> {
+                    TagCategory cat = new TagCategory();
+                    cat.parentTagId = parentTagId;
+                    WorkorderTagDO parentTag = parentTagMap.get(parentTagId);
+                    if (parentTag != null) {
+                        cat.parentTagName = parentTag.getTagName();
+                    } else {
+                        cat.parentTagName = "未分类";
+                        log.warn("未找到父标签，parentTagId: {}", parentTagId);
+                    }
+                    cat.childTags = new ArrayList<>();
+                    return cat;
+                });
+                category.childTags.add(tag);
+            }
+        }
+
+        // 7. 按照父标签ID排序（确保顺序一致）
+        List<TagCategory> result = new ArrayList<>(categoryMap.values());
+        result.sort(Comparator.comparing(cat -> cat.parentTagId));
+
+        log.info("标签分类完成 - 一级标签数量: {}, 总标签数量: {}", result.size(), allTags.size());
+
+        return result;
+    }
+
+    /**
+     * 标签分类数据结构
+     */
+    private static class TagCategory {
+        Long parentTagId;
+        String parentTagName;
+        List<WorkorderTagDO> childTags;
+    }
+
+    /**
+     * 生成标签列表HTML（用于PDF模板）
+     */
+    private String generateTagListHtml(List<TagCategory> tagCategories) {
+        if (CollUtil.isEmpty(tagCategories)) {
+            return "<div class=\"no-tags\">暂无标签</div>";
+        }
+
+        StringBuilder html = new StringBuilder();
+        for (TagCategory category : tagCategories) {
+            html.append("<div class=\"tag-category\">");
+            html.append("<div class=\"tag-category-title\">").append(category.parentTagName).append("</div>");
+            html.append("<div class=\"tag-category-content\">");
+            
+            if (CollUtil.isEmpty(category.childTags)) {
+                html.append("<span class=\"tag-item-empty\">暂无子标签</span>");
+            } else {
+                for (WorkorderTagDO childTag : category.childTags) {
+                    html.append("<span class=\"tag-item\">").append(childTag.getTagName()).append("</span>");
+                }
+            }
+            
+            html.append("</div>");
+            html.append("</div>");
+        }
+
+        return html.toString();
+    }
+
+    /**
+     * 生成标签文本（用于DOC和XLS模板）
+     */
+    private String generateTagText(List<TagCategory> tagCategories) {
+        if (CollUtil.isEmpty(tagCategories)) {
+            return "暂无标签";
+        }
+
+        StringBuilder text = new StringBuilder();
+        for (TagCategory category : tagCategories) {
+            text.append(category.parentTagName).append("：");
+            
+            if (CollUtil.isEmpty(category.childTags)) {
+                text.append("暂无子标签");
+            } else {
+                String childTagNames = category.childTags.stream()
+                        .map(WorkorderTagDO::getTagName)
+                        .collect(Collectors.joining("、"));
+                text.append(childTagNames);
+            }
+            
+            text.append("\n");
+        }
+
+        return text.toString().trim();
     }
 
     /**
@@ -162,8 +333,9 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
         String workOrderName;
         String receiptCompanyName;
         String paymentCompanyName;
-        String tagNames;
-        String tagList;
+        String tagList;  // HTML格式，用于PDF
+        String tagText;  // 文本格式，用于DOC和XLS
+        List<TagCategory> tagCategories;  // 结构化数据
         String remark;
         String currentDate;
         String currentDateTime;
@@ -248,12 +420,18 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
         result = result.replaceAll("\\{currentDate\\}", currentDate);
         result = result.replaceAll("\\{currentDateTime\\}", currentDateTime);
         
-        // 替换标签列表
+        // 替换标签列表（PDF使用HTML格式）
         if (StrUtil.isNotBlank(data.tagList)) {
-            String tagHtml = generateTagHtml(data.tagList, data.tagNames);
-            result = result.replaceAll("\\{tagList\\}", tagHtml);
+            result = result.replaceAll("\\{tagList\\}", data.tagList);
         } else {
-            result = result.replaceAll("\\{tagList\\}", "<span style='color: #999;'>暂无标签</span>");
+            result = result.replaceAll("\\{tagList\\}", "<div class=\"no-tags\">暂无标签</div>");
+        }
+        
+        // 替换标签文本（DOC和XLS使用文本格式）
+        if (StrUtil.isNotBlank(data.tagText)) {
+            result = result.replaceAll("\\{tagText\\}", data.tagText);
+        } else {
+            result = result.replaceAll("\\{tagText\\}", "暂无标签");
         }
         
         // 替换备注部分
@@ -280,23 +458,6 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
         log.debug("模板变量替换完成，结果长度: {}", result.length());
         
         return result;
-    }
-
-    /**
-     * 生成标签HTML
-     */
-    private String generateTagHtml(String tagList, String tagNames) {
-        if (StrUtil.isBlank(tagList)) {
-            return "";
-        }
-        String[] tags = tagList.split("\n");
-        StringBuilder html = new StringBuilder();
-        for (String tag : tags) {
-            if (StrUtil.isNotBlank(tag)) {
-                html.append("<span class=\"tag-item\">").append(tag.trim()).append("</span>");
-            }
-        }
-        return html.toString();
     }
 
     /**
@@ -703,7 +864,7 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
             label4.setCellValue("标签列表");
             label4.setCellStyle(labelStyle);
             Cell value4 = row4.createCell(1);
-            value4.setCellValue(templateData.tagNames);
+            value4.setCellValue(templateData.tagText != null ? templateData.tagText : "暂无标签");
             value4.setCellStyle(valueStyle);
             
             // 生成日期
