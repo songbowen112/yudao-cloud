@@ -15,8 +15,7 @@ public interface ConfirmOrderMapper extends BaseMapperX<ConfirmOrderDO> {
     default PageResult<ConfirmOrderDO> selectPage(ConfirmOrderPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<ConfirmOrderDO>()
                 .likeIfPresent(ConfirmOrderDO::getName, reqVO.getName())
-                .eqIfPresent(ConfirmOrderDO::getReceiptCompanyId, reqVO.getReceiptCompanyId())
-                .eqIfPresent(ConfirmOrderDO::getPaymentCompanyId, reqVO.getPaymentCompanyId())
+                .eqIfPresent(ConfirmOrderDO::getContractCompanyId, reqVO.getContractCompanyId())
                 .eqIfPresent(ConfirmOrderDO::getStatus, reqVO.getStatus())
                 .betweenIfPresent(ConfirmOrderDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(ConfirmOrderDO::getId));

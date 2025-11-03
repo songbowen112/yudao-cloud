@@ -61,6 +61,11 @@ public class WorkorderCompanyServiceImpl implements WorkorderCompanyService {
         return workorderCompanyMapper.selectListByStatus(status);
     }
 
+    @Override
+    public WorkorderCompanyDO getFirstByIsOwn(Integer isOwn) {
+        return workorderCompanyMapper.selectFirstByIsOwn(isOwn);
+    }
+
     private void validateExists(Long id) {
         if (workorderCompanyMapper.selectById(id) == null) {
             throw exception(WORKORDER_COMPANY_NOT_EXISTS);

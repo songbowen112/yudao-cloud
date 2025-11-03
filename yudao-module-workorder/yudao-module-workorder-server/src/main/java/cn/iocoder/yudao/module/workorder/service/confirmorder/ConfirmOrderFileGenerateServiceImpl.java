@@ -58,20 +58,20 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
         TemplateData templateData = buildTemplateData(confirmOrder);
         
         // 验证数据是否正确（用于调试）
-        log.info("准备生成文件 - 工单ID: {}, 工单名称: '{}', 收款企业: '{}', 付款企业: '{}', 文件类型: {}", 
+        log.info("准备生成文件 - 工单ID: {}, 工单名称: '{}', 标的企业: '{}', 文件类型: {}", 
                 confirmOrder.getId(), confirmOrder.getName(), 
-                confirmOrder.getReceiptCompanyName(), confirmOrder.getPaymentCompanyName(), 
+                confirmOrder.getContractCompanyName(), 
                 confirmOrder.getFileType());
 
         // 2. 根据文件类型选择模板并生成内容
         String content = generateContent(confirmOrder.getFileType(), templateData);
         
         // 验证内容是否包含实际数据（用于调试）
-        if (content.contains("{workOrderName}") || content.contains("{receiptCompanyName}") || 
-            content.contains("{paymentCompanyName}") || content.contains("{currentDate}")) {
-            log.error("模板变量未完全替换！未替换的变量: workOrderName={}, receiptCompanyName={}, paymentCompanyName={}, currentDate={}", 
-                    content.contains("{workOrderName}"), content.contains("{receiptCompanyName}"), 
-                    content.contains("{paymentCompanyName}"), content.contains("{currentDate}"));
+        if (content.contains("{workOrderName}") || content.contains("{contractCompanyName}") || 
+            content.contains("{currentDate}")) {
+            log.error("模板变量未完全替换！未替换的变量: workOrderName={}, contractCompanyName={}, currentDate={}", 
+                    content.contains("{workOrderName}"), content.contains("{contractCompanyName}"), 
+                    content.contains("{currentDate}"));
             log.error("替换后的内容预览: {}", content.substring(0, Math.min(1000, content.length())));
             throw new RuntimeException("模板变量替换失败，请检查数据是否正确传递");
         }
@@ -145,8 +145,7 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
     private TemplateData buildTemplateData(ConfirmOrderDO confirmOrder) {
         TemplateData data = new TemplateData();
         data.workOrderName = StrUtil.nullToEmpty(confirmOrder.getName());
-        data.receiptCompanyName = StrUtil.nullToEmpty(confirmOrder.getReceiptCompanyName());
-        data.paymentCompanyName = StrUtil.nullToEmpty(confirmOrder.getPaymentCompanyName());
+        data.contractCompanyName = StrUtil.nullToEmpty(confirmOrder.getContractCompanyName());
         data.remark = StrUtil.nullToEmpty(confirmOrder.getRemark());
         data.currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy年MM月dd日"));
         data.currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -161,8 +160,8 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
         // 生成标签文本（用于DOC和XLS模板）
         data.tagText = generateTagText(tagCategories);
         
-        log.info("构建模板数据 - 工单名称: {}, 收款企业: {}, 付款企业: {}, 标签分类数量: {}", 
-                data.workOrderName, data.receiptCompanyName, data.paymentCompanyName, tagCategories.size());
+        log.info("构建模板数据 - 工单名称: {}, 标的企业: {}, 标签分类数量: {}", 
+                data.workOrderName, data.contractCompanyName, tagCategories.size());
         
         return data;
     }
@@ -331,8 +330,7 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
      */
     private static class TemplateData {
         String workOrderName;
-        String receiptCompanyName;
-        String paymentCompanyName;
+        String contractCompanyName;
         String tagList;  // HTML格式，用于PDF
         String tagText;  // 文本格式，用于DOC和XLS
         List<TagCategory> tagCategories;  // 结构化数据
@@ -389,13 +387,12 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
         String result = template;
         
         // 记录替换前的数据（用于调试）
-        log.debug("开始替换模板变量 - 工单名称: '{}', 收款企业: '{}', 付款企业: '{}'", 
-                data.workOrderName, data.receiptCompanyName, data.paymentCompanyName);
+        log.debug("开始替换模板变量 - 工单名称: '{}', 标的企业: '{}'", 
+                data.workOrderName, data.contractCompanyName);
         
         // 替换基本变量 - 确保所有变量都被替换，即使值为空也要替换
         String workOrderName = StrUtil.nullToEmpty(data.workOrderName);
-        String receiptCompanyName = StrUtil.nullToEmpty(data.receiptCompanyName);
-        String paymentCompanyName = StrUtil.nullToEmpty(data.paymentCompanyName);
+        String contractCompanyName = StrUtil.nullToEmpty(data.contractCompanyName);
         String currentDate = StrUtil.nullToEmpty(data.currentDate);
         String currentDateTime = StrUtil.nullToEmpty(data.currentDateTime);
         
@@ -404,19 +401,14 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
             workOrderName = "未设置";
             log.warn("工单名称为空，使用默认值");
         }
-        if (StrUtil.isBlank(receiptCompanyName)) {
-            receiptCompanyName = "未设置";
-            log.warn("收款企业名称为空，使用默认值");
-        }
-        if (StrUtil.isBlank(paymentCompanyName)) {
-            paymentCompanyName = "未设置";
-            log.warn("付款企业名称为空，使用默认值");
+        if (StrUtil.isBlank(contractCompanyName)) {
+            contractCompanyName = "未设置";
+            log.warn("标的企业名称为空，使用默认值");
         }
         
         // 执行替换，使用 replaceAll 确保替换所有出现
         result = result.replaceAll("\\{workOrderName\\}", workOrderName);
-        result = result.replaceAll("\\{receiptCompanyName\\}", receiptCompanyName);
-        result = result.replaceAll("\\{paymentCompanyName\\}", paymentCompanyName);
+        result = result.replaceAll("\\{contractCompanyName\\}", contractCompanyName);
         result = result.replaceAll("\\{currentDate\\}", currentDate);
         result = result.replaceAll("\\{currentDateTime\\}", currentDateTime);
         
@@ -840,23 +832,14 @@ public class ConfirmOrderFileGenerateServiceImpl implements ConfirmOrderFileGene
             value1.setCellValue(templateData.workOrderName);
             value1.setCellStyle(valueStyle);
             
-            // 收款企业
+            // 标的企业
             Row row2 = sheet.createRow(rowIndex++);
             Cell label2 = row2.createCell(0);
-            label2.setCellValue("收款企业");
+            label2.setCellValue("标的企业");
             label2.setCellStyle(labelStyle);
             Cell value2 = row2.createCell(1);
-            value2.setCellValue(templateData.receiptCompanyName);
+            value2.setCellValue(templateData.contractCompanyName);
             value2.setCellStyle(valueStyle);
-            
-            // 付款企业
-            Row row3 = sheet.createRow(rowIndex++);
-            Cell label3 = row3.createCell(0);
-            label3.setCellValue("付款企业");
-            label3.setCellStyle(labelStyle);
-            Cell value3 = row3.createCell(1);
-            value3.setCellValue(templateData.paymentCompanyName);
-            value3.setCellStyle(valueStyle);
             
             // 标签列表
             Row row4 = sheet.createRow(rowIndex++);

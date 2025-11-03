@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.yudao.module.workorder.dal.mysql.quotedpriceorder.QuotedPriceOrderMapper">
+
+    <select id="selectStatisticsByMonth"
+            resultType="cn.iocoder.yudao.module.workorder.controller.admin.quotedpriceorder.vo.QuotedPriceOrderStatisticsRespVO">
+        SELECT DATE_FORMAT(create_time, '%Y-%m') AS month,
+               COUNT(1) AS totalCount,
+               IFNULL(SUM(quantity), 0) AS totalQuantity,
+               IFNULL(SUM(total_price), 0) AS totalPrice,
+               IFNULL(SUM(final_payment), 0) AS totalFinalPayment
+        FROM workorder_quoted_price_order
+        WHERE deleted = 0
+        <if test="beginTime != null">
+            AND create_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+        GROUP BY month
+        ORDER BY month DESC
+    </select>
+
+</mapper>
+

@@ -77,6 +77,15 @@ public class WorkorderCompanyController {
         List<WorkorderCompanyDO> list = workorderCompanyService.getListByStatus(status);
         return success(BeanUtils.toBean(list, WorkorderCompanyRespVO.class));
     }
+
+    @GetMapping("/get-by-is-own")
+    @Operation(summary = "根据是否属于自己的查询企业列表中的第一个")
+    @Parameter(name = "isOwn", description = "是否属于自己的 0-否 1-是", required = true)
+    @PreAuthorize("@ss.hasPermission('workorder:company:query')")
+    public CommonResult<WorkorderCompanyRespVO> getByIsOwn(@RequestParam("isOwn") Integer isOwn) {
+        WorkorderCompanyDO company = workorderCompanyService.getFirstByIsOwn(isOwn);
+        return success(BeanUtils.toBean(company, WorkorderCompanyRespVO.class));
+    }
 }
 
 

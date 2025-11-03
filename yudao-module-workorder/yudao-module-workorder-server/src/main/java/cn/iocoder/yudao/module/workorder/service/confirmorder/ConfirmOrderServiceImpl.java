@@ -47,8 +47,8 @@ public class ConfirmOrderServiceImpl implements ConfirmOrderService {
         entity.clean();
         
         // 验证必填字段（用于调试）
-        log.info("创建确认单 - 工单名称: '{}', 收款企业: '{}', 付款企业: '{}', 文件类型: {}", 
-                entity.getName(), entity.getReceiptCompanyName(), entity.getPaymentCompanyName(), entity.getFileType());
+        log.info("创建确认单 - 工单名称: '{}', 标的企业: '{}', 文件类型: {}", 
+                entity.getName(), entity.getContractCompanyName(), entity.getFileType());
         
         confirmOrderMapper.insert(entity);
         

@@ -15,6 +15,7 @@ public interface WorkorderCompanyMapper extends BaseMapperX<WorkorderCompanyDO> 
         return selectPage(reqVO, new LambdaQueryWrapperX<WorkorderCompanyDO>()
                 .likeIfPresent(WorkorderCompanyDO::getName, reqVO.getName())
                 .eqIfPresent(WorkorderCompanyDO::getStatus, reqVO.getStatus())
+                .eqIfPresent(WorkorderCompanyDO::getIsOwn, reqVO.getIsOwn())
                 .betweenIfPresent(WorkorderCompanyDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(WorkorderCompanyDO::getId));
     }
@@ -28,6 +29,20 @@ public interface WorkorderCompanyMapper extends BaseMapperX<WorkorderCompanyDO> 
         return selectList(new LambdaQueryWrapperX<WorkorderCompanyDO>()
                 .eqIfPresent(WorkorderCompanyDO::getStatus, status)
                 .orderByAsc(WorkorderCompanyDO::getId));
+    }
+
+    /**
+     * 根据是否属于自己的查询企业列表，返回第一个
+     *
+     * @param isOwn 是否属于自己的 0-否 1-是
+     * @return 第一个企业，如果不存在则返回null
+     */
+    default WorkorderCompanyDO selectFirstByIsOwn(Integer isOwn) {
+        List<WorkorderCompanyDO> list = selectList(new LambdaQueryWrapperX<WorkorderCompanyDO>()
+                .eq(WorkorderCompanyDO::getIsOwn, isOwn)
+                .orderByAsc(WorkorderCompanyDO::getId)
+                .last("LIMIT 1"));
+        return list != null && !list.isEmpty() ? list.get(0) : null;
     }
 }
 

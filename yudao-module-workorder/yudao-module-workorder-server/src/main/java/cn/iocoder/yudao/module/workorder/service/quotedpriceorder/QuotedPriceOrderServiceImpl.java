@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.workorder.controller.admin.quotedpriceorder.vo.QuotedPriceOrderPageReqVO;
 import cn.iocoder.yudao.module.workorder.controller.admin.quotedpriceorder.vo.QuotedPriceOrderSaveReqVO;
+import cn.iocoder.yudao.module.workorder.controller.admin.quotedpriceorder.vo.QuotedPriceOrderStatisticsRespVO;
 import cn.iocoder.yudao.module.workorder.dal.dataobject.confirmorder.ConfirmOrderDO;
 import cn.iocoder.yudao.module.workorder.dal.dataobject.quotedpriceorder.QuotedPriceOrderDO;
 import cn.iocoder.yudao.module.workorder.dal.mysql.confirmorder.ConfirmOrderMapper;
@@ -17,6 +18,8 @@ import org.springframework.validation.annotation.Validated;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.module.workorder.enums.ErrorCodeConstants.*;
@@ -56,7 +59,7 @@ public class QuotedPriceOrderServiceImpl implements QuotedPriceOrderService {
             // 清除creator和updater等字段，让MyBatis-Plus自动填充
             entity.clean();
             calculatePrices(entity);
-            
+
             log.info("创建报价单 - 确认单ID: {}, 工单名称: '{}', 单价: {}, 数量: {}, 总价: {}", 
                     confirmOrderId, entity.getConfirmOrderName(), entity.getPrice(), entity.getQuantity(), entity.getTotalPrice());
             
@@ -109,6 +112,8 @@ public class QuotedPriceOrderServiceImpl implements QuotedPriceOrderService {
             return;
         }
         confirmOrder.setStatus(status);
+        // 清除creator和updater等字段，让MyBatis-Plus自动填充
+        confirmOrder.clean();
         confirmOrderMapper.updateById(confirmOrder);
         log.debug("更新确认单状态 - confirmOrderId: {}, status: {}", confirmOrderId, status);
     }
@@ -129,6 +134,8 @@ public class QuotedPriceOrderServiceImpl implements QuotedPriceOrderService {
                 return;
             }
             confirmOrder.setStatus(status);
+            // 清除creator和updater等字段，让MyBatis-Plus自动填充
+            confirmOrder.clean();
             confirmOrderMapper.updateById(confirmOrder);
             log.info("独立事务更新确认单状态成功 - confirmOrderId: {}, status: {}", confirmOrderId, status);
         } catch (Exception e) {
@@ -205,6 +212,14 @@ public class QuotedPriceOrderServiceImpl implements QuotedPriceOrderService {
     @Override
     public PageResult<QuotedPriceOrderDO> getPage(QuotedPriceOrderPageReqVO pageReqVO) {
         return quotedPriceOrderMapper.selectPage(pageReqVO);
+    }
+
+    @Override
+    public List<QuotedPriceOrderStatisticsRespVO> getStatisticsByMonth(LocalDateTime beginTime, LocalDateTime endTime) {
+        log.info("获取报价单按月统计数据 - beginTime: {}, endTime: {}", beginTime, endTime);
+        List<QuotedPriceOrderStatisticsRespVO> result = quotedPriceOrderMapper.selectStatisticsByMonth(beginTime, endTime);
+        log.info("报价单按月统计数据查询完成 - 结果数量: {}", result != null ? result.size() : 0);
+        return result;
     }
 
     private void validateExists(Long id) {

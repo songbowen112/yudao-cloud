@@ -9,6 +9,8 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.workorder.controller.admin.quotedpriceorder.vo.*;
 import cn.iocoder.yudao.module.workorder.dal.dataobject.quotedpriceorder.QuotedPriceOrderDO;
 import cn.iocoder.yudao.module.workorder.service.quotedpriceorder.QuotedPriceOrderService;
+import java.time.LocalDateTime;
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -79,6 +81,20 @@ public class QuotedPriceOrderController {
     public CommonResult<PageResult<QuotedPriceOrderRespVO>> page(QuotedPriceOrderPageReqVO pageReqVO) {
         PageResult<QuotedPriceOrderDO> pageResult = quotedPriceOrderService.getPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, QuotedPriceOrderRespVO.class));
+    }
+
+    @GetMapping("/statistics/monthly")
+    @Operation(summary = "获取报价单按月统计数据", description = "统计指定时间范围内的报价单数据，按月份分组返回总条数、总数量、总价款、总尾款")
+    @PreAuthorize("@ss.hasPermission('workorder:quoted-price-order:query')")
+    public CommonResult<List<QuotedPriceOrderStatisticsRespVO>> getMonthlyStatistics(
+            @Parameter(description = "开始时间，格式：yyyy-MM-dd HH:mm:ss，可选")
+            @RequestParam(value = "beginTime", required = false) 
+            @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beginTime,
+            @Parameter(description = "结束时间，格式：yyyy-MM-dd HH:mm:ss，可选")
+            @RequestParam(value = "endTime", required = false)
+            @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime) {
+        List<QuotedPriceOrderStatisticsRespVO> statistics = quotedPriceOrderService.getStatisticsByMonth(beginTime, endTime);
+        return success(statistics);
     }
 
     @GetMapping("/download")

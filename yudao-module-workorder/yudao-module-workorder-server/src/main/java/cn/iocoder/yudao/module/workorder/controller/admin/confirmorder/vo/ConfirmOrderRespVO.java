@@ -9,10 +9,8 @@ import java.time.LocalDateTime;
 public class ConfirmOrderRespVO {
     private Long id;
     private String name;
-    private Long receiptCompanyId;
-    private String receiptCompanyName;
-    private Long paymentCompanyId;
-    private String paymentCompanyName;
+    private Long contractCompanyId;
+    private String contractCompanyName;
     private String tagIds;
     private Integer status;
     private Integer fileType;

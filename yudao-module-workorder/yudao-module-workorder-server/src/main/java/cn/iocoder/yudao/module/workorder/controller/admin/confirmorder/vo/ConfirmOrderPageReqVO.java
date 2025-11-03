@@ -13,8 +13,7 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 public class ConfirmOrderPageReqVO extends PageParam {
 
     private String name;
-    private Long receiptCompanyId;
-    private Long paymentCompanyId;
+    private Long contractCompanyId;
     private Integer status;
 
     @Schema(description = "创建时间区间")

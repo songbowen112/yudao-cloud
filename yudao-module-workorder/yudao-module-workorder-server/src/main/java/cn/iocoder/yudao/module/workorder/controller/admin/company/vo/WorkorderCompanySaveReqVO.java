@@ -19,6 +19,8 @@ public class WorkorderCompanySaveReqVO {
     private String bankAccount;
     private String remark;
     private Integer status;
+    /** 是否属于自己的 0-否 1-是 */
+    private Integer isOwn;
 }
 
 

@@ -21,6 +21,14 @@ public interface WorkorderCompanyService {
      * @param status 状态，可选。如果为空则查询所有状态的企业
      */
     List<WorkorderCompanyDO> getListByStatus(Integer status);
+
+    /**
+     * 根据是否属于自己的查询企业列表中的第一个
+     *
+     * @param isOwn 是否属于自己的 0-否 1-是
+     * @return 第一个企业，如果不存在则返回null
+     */
+    WorkorderCompanyDO getFirstByIsOwn(Integer isOwn);
 }
 
 

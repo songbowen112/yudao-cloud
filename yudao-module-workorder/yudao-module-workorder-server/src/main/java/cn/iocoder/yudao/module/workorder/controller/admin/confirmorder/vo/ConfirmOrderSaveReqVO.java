@@ -15,10 +15,8 @@ public class ConfirmOrderSaveReqVO {
     @NotNull(message = "工单名称不能为空")
     private String name;
 
-    private Long receiptCompanyId;
-    private String receiptCompanyName;
-    private Long paymentCompanyId;
-    private String paymentCompanyName;
+    private Long contractCompanyId;
+    private String contractCompanyName;
     private String tagIds;
     private Integer status;
     private Integer fileType;

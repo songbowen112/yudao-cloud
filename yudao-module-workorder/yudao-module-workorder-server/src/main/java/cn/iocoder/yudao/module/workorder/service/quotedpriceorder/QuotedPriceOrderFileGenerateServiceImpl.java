@@ -178,6 +178,10 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
         // 预付款说明文字
         data.advancePaymentWithNote = data.advancePaymentStr + " (" + data.advancePaymentStr + " 元为合同约定的预付款 (本次服务费用的 30%))";
         data.finalPaymentStr = formatAmount(data.finalPayment);
+        // 合计字段：直接显示总价，不带括号和注释
+        data.totalPriceWithNote = data.totalPriceStr;
+        // 尾款字段：直接显示尾款，去掉括号
+        data.finalPaymentWithNote = data.finalPaymentStr;
         data.discountPriceStr = formatAmount(data.discountPrice);
         
         return data;
@@ -211,6 +215,8 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
         String advancePaymentStr;
         String advancePaymentWithNote; // 预付款带说明
         String finalPaymentStr;
+        String totalPriceWithNote; // 合计带说明（按图片格式）
+        String finalPaymentWithNote; // 尾款带重复显示（按图片格式）
         String discountPriceStr;
         String remark;
         String currentDate;
@@ -278,6 +284,8 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
         result = result.replaceAll("\\{advancePayment\\}", data.advancePaymentStr);
         result = result.replaceAll("\\{advancePaymentWithNote\\}", StrUtil.nullToEmpty(data.advancePaymentWithNote));
         result = result.replaceAll("\\{finalPayment\\}", data.finalPaymentStr);
+        result = result.replaceAll("\\{totalPriceWithNote\\}", StrUtil.nullToEmpty(data.totalPriceWithNote));
+        result = result.replaceAll("\\{finalPaymentWithNote\\}", StrUtil.nullToEmpty(data.finalPaymentWithNote));
         result = result.replaceAll("\\{discountPrice\\}", data.discountPriceStr);
         result = result.replaceAll("\\{currentDate\\}", StrUtil.nullToEmpty(data.currentDate));
         result = result.replaceAll("\\{currentDateTime\\}", StrUtil.nullToEmpty(data.currentDateTime));
@@ -306,7 +314,7 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
      */
     private String generateRemarkSection(String remark) {
         return "<div class=\"remark-section\">" +
-                "<div class=\"remark-title\">备注信息</div>" +
+                "<div class=\"remark-header\">备注</div>" +
                 "<div class=\"remark-content\">" + remark + "</div>" +
                 "</div>";
     }
@@ -514,17 +522,17 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
             
             int rowIndex = 0;
             
-            // 从HTML提取标题
+            // 从HTML提取标题 - 合并A/B/C/D四列
             org.jsoup.nodes.Element titleElement = doc.select(".title").first();
             if (titleElement != null) {
                 Row titleRow = sheet.createRow(rowIndex++);
-                titleRow.createCell(0);
-                titleRow.createCell(1);
-                Cell titleCell = titleRow.createCell(2);
+                Cell titleCell = titleRow.createCell(0);
                 titleCell.setCellValue(titleElement.text());
                 titleCell.setCellStyle(titleStyle);
+                titleRow.createCell(1);
+                titleRow.createCell(2);
                 titleRow.createCell(3);
-                sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(rowIndex - 1, rowIndex - 1, 2, 3));
+                sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(rowIndex - 1, rowIndex - 1, 0, 3));
                 titleRow.setHeightInPoints(30);
             }
             
@@ -651,7 +659,7 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
     }
 
     /**
-     * 创建分区标题样式（一、付款方信息等，橙色背景）
+     * 创建分区标题样式（一、付款方信息等，灰色背景）
      */
     private CellStyle createSectionHeaderStyle(HSSFWorkbook workbook) {
         CellStyle style = workbook.createCellStyle();
@@ -659,7 +667,8 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
         font.setBold(true);
         font.setFontHeightInPoints((short) 12);
         style.setFont(font);
-        style.setFillForegroundColor(IndexedColors.ORANGE.getIndex());
+        // 使用灰色背景
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderTop(BorderStyle.THIN);
@@ -670,7 +679,7 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
     }
 
     /**
-     * 创建表头样式
+     * 创建表头样式（灰色背景）
      */
     private CellStyle createTableHeaderStyle(HSSFWorkbook workbook) {
         CellStyle style = workbook.createCellStyle();
@@ -678,7 +687,8 @@ public class QuotedPriceOrderFileGenerateServiceImpl implements QuotedPriceOrder
         font.setBold(true);
         font.setFontHeightInPoints((short) 11);
         style.setFont(font);
-        style.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
+        // 使用灰色背景
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderTop(BorderStyle.THIN);

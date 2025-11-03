@@ -22,14 +22,10 @@ public class ConfirmOrderDO extends TenantBaseDO {
     private Long id;
     /** 工单名称 */
     private String name;
-    /** 收款企业ID */
-    private Long receiptCompanyId;
-    /** 收款企业名称 */
-    private String receiptCompanyName;
-    /** 付款企业ID */
-    private Long paymentCompanyId;
-    /** 付款企业名称 */
-    private String paymentCompanyName;
+    /** 标的企业ID */
+    private Long contractCompanyId;
+    /** 标的企业名称 */
+    private String contractCompanyName;
     /** 标签ID列表，多个用逗号分隔 */
     private String tagIds;
     /** 工单状态：1-初始化 2-报价完成 3-报价失败 4-通知完成 5-通知失败 */
